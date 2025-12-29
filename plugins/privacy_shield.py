@@ -1,48 +1,60 @@
-# plugins/privacy_shield.py
+# plugins/global_tools.py
 import os
+import asyncio
 from telethon import events, types
 
-# تعريفات القائمة للمحرك
-SECTION_NAME = "🛡️ حماية الخصوصية"
-COMMANDS = "`.تفعيل_الصيد` - تفعيل كاش الرسائل المحذوفة\n`.كاش` - عرض عدد الرسائل في الذاكرة"
+# --- كليشة المساعدة (تظهر في .الاوامر) ---
+SECTION_NAME = "🛡️ المنظومة العالمية"
+COMMANDS = (
+    "`.حفظ` [تفعيل/تعطيل] - لخزن رسائل المجموعات\n"
+    "`.صيد` [تفعيل/تعطيل] - لصيد المحذوفات والتدمير\n"
+    "`.فحص` - للتأكد من استجابة الأمر"
+)
 
-# حالة النظام
-IS_SNIFFING = True
+# نظام حفظ الحالة (States) لضمان عدم التضارب
+SETTINGS = {"save_groups": False, "anti_delete": False}
 
-async def setup(client, cache):
-    @client.on(events.NewMessage(incoming=True))
-    async def cache_handler(event):
-        """حفظ الرسائل في الكاش فور وصولها لصيدها إذا حُذفت"""
-        if IS_SNIFFING and event.text:
-            cache[event.id] = {
-                'text': event.text,
-                'sender': event.sender_id,
-                'chat': event.chat_id
-            }
-            # تنظيف الكاش القديم (أول 1000 رسالة فقط)
-            if len(cache) > 1000:
-                key_to_del = next(iter(cache))
-                del cache[key_to_del]
+# 1. أمر الفحص (Ping) للتأكد من الربط
+@events.register(events.NewMessage(outgoing=True, pattern=r"\.فحص"))
+async def ping_handler(event):
+    await event.edit("⚡ **الأمر يعمل بنجاح!**\n📡 تم ربط الملحق بالمحرك العالمي.")
 
-    @client.on(events.MessageDeleted)
-    async def deleted_log_handler(event):
-        """صيد الرسائل المحذوفة وإرسالها لمخزنك الخاص"""
-        for msg_id in event.deleted_ids:
-            if msg_id in cache:
-                msg_data = cache[msg_id]
-                log_text = (
-                    f"👀 **تم رصد حذف رسالة!**\n"
-                    f"👤 **المرسل:** `{msg_data['sender']}`\n"
-                    f"💬 **المحتوى:** {msg_data['text']}"
-                )
-                # إرسال إلى الرسائل المحفوظة (me)
-                await client.send_message("me", log_text)
-                del cache[msg_id]
+# 2. أمر التحكم بنظام الحفظ والصيد
+@events.register(events.NewMessage(outgoing=True, pattern=r"\.(حفظ|صيد) (تفعيل|تعطيل)"))
+async def toggle_handler(event):
+    cmd = event.pattern_match.group(1)
+    status = event.pattern_match.group(2)
+    
+    is_on = True if status == "تفعيل" else False
+    
+    if cmd == "حفظ":
+        SETTINGS["save_groups"] = is_on
+        word = "✅ تم تفعيل" if is_on else "🛑 تم تعطيل"
+        await event.edit(f"{word} **خزن رسائل المجموعات.**")
+    
+    elif cmd == "صيد":
+        SETTINGS["anti_delete"] = is_on
+        word = "✅ تم تفعيل" if is_on else "🛑 تم تعطيل"
+        await event.edit(f"{word} **صائد المحذوفات والتدمير الذاتي.**")
 
-    @client.on(events.Raw(types.UpdateServiceNotification))
-    async def screenshot_handler(update):
-        """كشف تصوير الشاشة في المحادثات الخاصة"""
-        if "screenshot" in update.message.lower():
-            await client.send_message("me", "⚠️ **تنبيه أمني:** قام الطرف الآخر بتصوير الشاشة!")
+# 3. المحرك الخلفي (الذي ينفذ المهام تلقائياً)
+@events.register(events.NewMessage(incoming=True))
+async def global_sniffer(event):
+    """هذا الجزء هو الذي يقوم بالعمل الحقيقي في الخلفية"""
+    
+    # أولاً: صيد التدمير الذاتي (الصور والفيديوهات التي تختفي)
+    if SETTINGS["anti_delete"]:
+        if event.media and hasattr(event.media, 'ttl_seconds') and event.media.ttl_seconds:
+            try:
+                # الحفظ الفوري في الرسائل المحفوظة (me) لضمان الخصوصية
+                await event.forward_to("me")
+            except: pass
 
-    print("🛡️ إضافة 'حامي الخصوصية' جاهزة للعمل بنسبة 100%")
+    # ثانياً: خزن رسائل المجموعات (إذا كان مفعلاً)
+    if SETTINGS["save_groups"] and event.is_group:
+        try:
+            # التوجيه التلقائي للمخزن
+            await event.forward_to("me")
+        except: pass
+
+# ملاحظة برمجية: تأكد أن المحرك (main.py) يحتوي على client.add_event_handler
