@@ -1,0 +1,47 @@
+sqlite3
+asyncio
+telethon
+python-dotenv
+python-dotenv
+telethon
+python-dotenv
+aiohttp
+yt-dlp
+edge-tts
+Pillow
+psutil
+speedtest-cli
+pytz
+beautifulsoup4
+langdetect
+deep-translator
+yt-dlp
+ffmpeg-python
+telethon
+python-dotenv
+yt-dlp
+certifi
+aiohttp
+edge-tts
+aiohttp
+pytz
+# --- مكاتب المحرك والاتصال ---
+telethon==1.36.0
+aiohttp==3.9.1
+requests==2.31.0
+uvloop==0.19.0; sys_platform != 'win32' and platform_system != 'Android'
+
+# --- مكاتب الذكاء الاصطناعي والترجمة ---
+deep-translator==1.11.4
+langdetect==1.0.9
+beautifulsoup4==4.12.2
+
+# --- مكاتب الميديا والنطق ---
+edge-tts==6.1.9
+yt-dlp==2023.11.16
+Pillow==10.1.0
+
+# --- مكاتب النظام والتوقيت ---
+pytz==2023.3.post1
+psutil==5.9.6
+speedtest-cli==2.1.3
