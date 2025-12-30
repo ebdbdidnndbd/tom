@@ -8,12 +8,12 @@ from __main__ import client, load_plugins # استيراد المحرك الأس
 SECTION_NAME = "🔄 نـظـام الـتـحـديـث الـمـطـور"
 COMMANDS = (
     "• `.تحديث` : جـلـب الأوامـر الـجـديـدة مـن GitHub\n"
-    "• `.فحص التحديث` : الـتـأكـد مـن وجـود تـحـديـثـات مـتـوفـرة"
+    "• `.التحديثات الجديده ` : الـتـأكـد مـن وجـود تـحـديـثـات مـتـوفـرة"
 )
 
 @client.on(events.NewMessage(outgoing=True, pattern=r'\.فحص التحديث'))
 async def check_update(event):
-    await event.edit("📡 **جـارِ فـحـص الـمـسـتـودع عـن تـحـديـثـات جـديـدة...**")
+    await event.edit("📡 **جـارِ فـحـص عـن تـحـديـثـات جـديـدة...**")
     try:
         # جلب البيانات من المستودع بدون دمجها
         subprocess.check_output(["git", "fetch"])
@@ -38,13 +38,13 @@ async def update_source(event):
             return await event.edit("✅ **لا تـوجـد أوامـر جـديـدة مـضـافـة.**")
 
         # إرسال إشعار بنجاح الجلب
-        await event.edit("⚙️ **تـم جـلـب الـمـلـفات! جـارِ تـفـعـيـل الأوامـر الـجـديـدة...**")
+        await event.edit("⚙️ **تـم الــتـحـديـث..**")
         
         # استدعاء دالة تحميل الإضافات من main.py
         load_plugins()
         
         # إعادة تشغيل السورس لضمان تفعيل التغييرات الجذرية
-        await event.edit("✅ **تـم الـتـحـديـث بـنـجـاح! جـارِ إعـادة تـشـغـيـل الـمـحـرك...**")
+        await event.edit("✅ **تـم الـتـحـديـث بـنـجـاح!...**")
         os.execl(sys.executable, sys.executable, *sys.argv)
         
     except Exception as e:
