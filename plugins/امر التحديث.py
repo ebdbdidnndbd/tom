@@ -8,10 +8,10 @@ from __main__ import client, load_plugins # استيراد المحرك الأس
 SECTION_NAME = "🔄 نـظـام الـتـحـديـث الـمـطـور"
 COMMANDS = (
     "• `.تحديث` : جـلـب الأوامـر الـجـديـدة مـن GitHub\n"
-    "• `.التحديثات الجديده ` : الـتـأكـد مـن وجـود تـحـديـثـات مـتـوفـرة"
+    "• `.التحديثات الجديده؟ ` : الـتـأكـد مـن وجـود تـحـديـثـات مـتـوفـرة"
 )
 
-@client.on(events.NewMessage(outgoing=True, pattern=r'\.فحص التحديث'))
+@client.on(events.NewMessage(outgoing=True, pattern=r'\.التحديثات الجديده؟'))
 async def check_update(event):
     await event.edit("📡 **جـارِ فـحـص عـن تـحـديـثـات جـديـدة...**")
     try:
